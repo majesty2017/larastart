@@ -4,10 +4,27 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+import Dashboard from "./components/Dashboard";
+
 require('./bootstrap');
 require('admin-lte');
 
 window.Vue = require('vue').default;
+
+import VueRouter from 'vue-router'
+import Profile from "./components/Profile";
+
+Vue.use(VueRouter)
+
+const routes = [
+    { path: '/dashboard', component: Dashboard },
+    { path: '/profile', component: Profile }
+]
+
+const router = new VueRouter({
+    mode: 'history',
+    routes // short for `routes: routes`
+})
 
 /**
  * The following block of code may be used to automatically register your
@@ -30,4 +47,5 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 const app = new Vue({
     el: '#app',
+    router
 });
