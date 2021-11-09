@@ -19,6 +19,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 {{--    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">--}}
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+
+{{--    <link rel="stylesheet" href="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">--}}
 </head>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper" id="app">
@@ -97,10 +99,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
+                                <router-link to="/users" class="nav-link">
                                     <i class="fas fa-users nav-icon text-cyan"></i>
                                     <p>Users</p>
-                                </a>
+                                </router-link>
                             </li>
                         </ul>
                     </li>
@@ -137,6 +139,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <div class="content">
             <div class="container-fluid">
                 <router-view></router-view>
+
+                <!-- set progressbar -->
+                <vue-progress-bar></vue-progress-bar>
+
             </div><!-- /.container-fluid -->
         </div>
         <!-- /.content -->
@@ -147,10 +153,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <footer class="main-footer">
         <!-- To the right -->
         <div class="float-right d-none d-sm-inline">
-            Anything you want
+            Version: 1.0.0
         </div>
         <!-- Default to the left -->
-        <strong>Copyright &copy; 2014-2021 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+        <strong>Copyright &copy; 2014-{{ date('Y') }} <a href="#">MajestySoft</a>.</strong> All rights reserved.
     </footer>
 </div>
 <!-- ./wrapper -->
@@ -159,5 +165,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 <!-- jQuery -->
 <script src="{{ mix('js/app.js') }}"></script>
+{{--<script src="//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>--}}
+{{--<script>--}}
+{{--    $('#user-list').DataTable()--}}
+{{--</script>--}}
 </body>
 </html>

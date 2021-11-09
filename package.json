@@ -27,7 +27,12 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.4",
         "admin-lte": "^3.1.0",
+        "datatables.net": "^1.11.3",
+        "datatables.net-dt": "^1.11.3",
+        "moment": "^2.29.1",
+        "sweetalert2": "^11.1.10",
         "vform": "^2.1.2",
+        "vue-progressbar": "^0.7.5",
         "vue-router": "^3.5.3"
     }
 }
