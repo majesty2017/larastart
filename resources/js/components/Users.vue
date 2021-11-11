@@ -8,7 +8,7 @@
                         <h3 class="card-title">Users Table</h3>
 
                         <div class="card-tools">
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
+                            <button type="button" class="btn btn-primary" @click="addModal()">
                                 <i class="fa fa-user-plus"></i> Add New
                             </button>
                         </div>
@@ -34,7 +34,7 @@
                                 <td><span class="tag tag-success">{{ user.type | upText}}</span></td>
                                 <td>{{ user.created_at | forHumans }}</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm" title="Edit">
+                                    <a href="#" class="btn btn-sm" title="Edit" @click="editModal(user)">
                                         <i class="fa fa-edit text-blue"></i>
                                     </a>
                                     <a href="#" class="btn btn-sm" title="Delete">
@@ -57,12 +57,15 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Add New User</h5>
+                        <h5 class="modal-title" id="exampleModalLabel" v-show="!edit_mode">Add New User</h5>
+                        <h5 class="modal-title" id="" v-show="edit_mode">Edit User</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form @submit.prevent="createUser" @keydown="form.onKeydown($event)" @keyup.enter="createUser">
+                    <form @submit.prevent="edit_mode ? updateUser() : createUser()"
+                          @keydown="form.onKeydown($event)"
+                          @keyup.enter="edit_mode ? updateUser() : createUser()">
                             <div class="modal-body">
                             <div class="form-group">
                                 <input v-model="form.name" type="text" class="form-control"
@@ -107,7 +110,8 @@
 
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="submit" class="btn btn-primary" v-show="!edit_mode">Save</button>
+                                <button type="submit" class="btn btn-primary" v-show="edit_mode">Save Changes</button>
                             </div>
                         </form>
                 </div>
@@ -121,7 +125,9 @@ export default {
     data () {
         return {
             users: {},
+            edit_mode: false,
             form: new Form({
+                id: '',
                 name: '',
                 email: '',
                 password: '',
@@ -132,12 +138,25 @@ export default {
         }
     },
     methods: {
+        addModal() {
+            this.edit_mode = false
+            this.form.reset()
+            $('#addUserModal').modal('show')
+        },
+
+        editModal(user) {
+            this.edit_mode = true
+            this.form.reset()
+            this.form.fill(user)
+            $('#addUserModal').modal('show')
+        },
+
         createUser() {
             this.$Progress.start()
             this.form.post('api/users')
             .then(res => {
                 if (res.status === 201) {
-                    Fire.$emit('afterCreate')
+                    Fire.$emit('loadUser')
                     $('#addUserModal').modal('hide')
                     this.getUser()
                     this.$Progress.finish()
@@ -162,12 +181,77 @@ export default {
             }).catch(err => {
                 console.log(err)
             })
+        },
+
+        updateUser() {
+            this.edit_mode = true
+            this.$Progress.start()
+            this.form.put(`api/users/${this.form.id}`)
+            .then(res => {
+                if (res.status === 200) {
+                    this.$Progress.finish()
+                    this.getUser()
+                    $('#addUserModal').modal('hide')
+                    toast.fire({
+                        icon: 'success',
+                        title: 'Changes saved successfully'
+                    })
+                }
+            }).catch(err => {
+                console.log(err)
+                toast.fire({
+                    icon: 'error',
+                    title: 'Something went wrong, failed to update user!'
+                })
+            })
+        },
+
+        deleteUser(id) {
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.form.delete(`api/users/${id}`)
+                    .then(res => {
+                        if (res.status === 200) {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Your record has been deleted.',
+                                'success'
+                            )
+                        }
+                    })
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    swalWithBootstrapButtons.fire(
+                        'Cancelled',
+                        'Your data is safe :)',
+                        'error'
+                    )
+                }
+            })
         }
     },
 
     created() {
         this.getUser()
-        Fire.$on('afterCreate', () => {
+        Fire.$on('loadUser', () => {
             this.getUser()
         })
     }
